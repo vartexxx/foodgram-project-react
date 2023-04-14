@@ -136,3 +136,8 @@ dmypy.json
 
 #vscode
 .vscode
+
+#migrations
+**/migrations/**
+!**/migrations
+!**/migrations/__init__.py
