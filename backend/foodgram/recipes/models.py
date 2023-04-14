@@ -6,6 +6,8 @@ User = get_user_model()
 
 
 class Tags(models.Model):
+    """Класс модели тегов"""
+
     name = models.CharField(
         max_length=200,
         unique=True,
@@ -38,6 +40,8 @@ class Tags(models.Model):
 
 
 class Ingredient(models.Model):
+    """Класс модели ингредиентов"""
+
     name = models.CharField(
         max_length=200,
         verbose_name='Название ингредиента',
@@ -58,10 +62,12 @@ class Ingredient(models.Model):
 
 
 class Recipes(models.Model):
+    """Класс модели рецептов"""
+
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        help_text='Введите пользователя(автора) рецепта',
+        help_text='Выберите пользователя(автора) рецепта',
         verbose_name='Пользователь(автор) рецепта',
     )
     name = models.CharField(
@@ -84,7 +90,10 @@ class Recipes(models.Model):
         verbose_name='Ингредиенты',
         help_text='Выберите ингредиенты',
     )
-    text = models.TextField()
+    text = models.TextField(
+        verbose_name='Текст рецепта',
+        help_text='Введите текст рецепта',
+    )
     cooking_time = models.PositiveIntegerField(
         verbose_name='Время приготовления в минутах',
         help_text='Введите время приготовления в минутах',
@@ -107,11 +116,13 @@ class Recipes(models.Model):
 
 
 class RecipeDefaultModel(models.Model):
+    """Абстрактный базовый класс модели рецептов"""
+
     recipe = models.ForeignKey(
         Recipes,
         on_delete=models.CASCADE,
         verbose_name='Рецепт',
-        help_text='Введите рецепт',
+        help_text='Выберите рецепт',
     )
 
     class Meta:
@@ -119,11 +130,13 @@ class RecipeDefaultModel(models.Model):
 
 
 class UserDefaultModel(models.Model):
+    """Абстрактный базовый класс модели пользователя"""
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name='Автор',
-        help_text='Введите автора',
+        verbose_name='Пользователь',
+        help_text='Выберите пользователя',
     )
 
     class Meta:
@@ -131,6 +144,8 @@ class UserDefaultModel(models.Model):
 
 
 class RecipesIngredientList(RecipeDefaultModel):
+    """Класс модели списка ингредиентов"""
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -139,7 +154,7 @@ class RecipesIngredientList(RecipeDefaultModel):
     )
     amount = models.PositiveIntegerField(
         verbose_name='Количество ингредиентов',
-        help_text='Выберите количество ингредиентов',
+        help_text='Введите количество ингредиентов',
         validators=[MinValueValidator(
             1,
             message='Ингредиентов должно быть не меньше 1'
@@ -149,7 +164,7 @@ class RecipesIngredientList(RecipeDefaultModel):
     class Meta:
         default_related_name = 'recipes_amount'
         ordering = ('-id',)
-        verbose_name = 'Ингредиент'
+        verbose_name = 'Ингредиенты'
         verbose_name_plural = 'Количество ингредиентов'
         constraints = [models.UniqueConstraint(
             fields=['recipe', 'ingredient'], name='unique_recipes_list'
@@ -160,6 +175,7 @@ class RecipesIngredientList(RecipeDefaultModel):
 
 
 class Favorite(RecipeDefaultModel, UserDefaultModel):
+    """Класс модели подписок(избранного)"""
 
     class Meta:
         default_related_name = 'favorite'
@@ -176,10 +192,11 @@ class Favorite(RecipeDefaultModel, UserDefaultModel):
 
 
 class ShoppingCart(RecipeDefaultModel, UserDefaultModel):
+    """Класс модели корзины"""
 
     class Meta:
         default_related_name = 'shoppingcart'
-        verbose_name = 'Корзина'
+        verbose_name = 'Корзину'
         verbose_name_plural = 'Корзина'
         constraints = [models.UniqueConstraint(
             fields=['user', 'recipe'], name='unique_shopping_cart'

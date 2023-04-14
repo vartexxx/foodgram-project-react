@@ -64,6 +64,7 @@ class Follow(models.Model):
         related_name='following',
         on_delete=models.CASCADE,
         verbose_name='Автор контента',
+        help_text='Выберите автора контента',
     )
 
     class Meta:
