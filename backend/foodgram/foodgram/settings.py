@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f(vu%fm4(e3!ar!3w@(c1#ypkmnu(80y%dmk-m*vme$)p+bp4('
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -115,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -145,3 +145,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
+
+
+DJOSER = {
+    "LOGIN_FIELD": "email",
+    "SEND_ACTIVATION_EMAIL": False,
+    "HIDE_USERS": False,
+    "SERIALIZERS": {
+        "user_create": "api.serializers.CustomCreateUserSerializer",
+        "current_user": "api.serializers.CustomUserSerializer",
+        "user": "api.serializers.CustomUserSerializer",
+    },
+    "PERMISSIONS": {
+        "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        "user_list": ['rest_framework.permissions.AllowAny'],
+        "token_create": ["rest_framework.permissions.AllowAny"],
+        "token_destroy": ["rest_framework.permissions.IsAuthenticated"],
+    },
+}
