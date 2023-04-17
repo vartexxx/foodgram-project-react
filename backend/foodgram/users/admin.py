@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 
-from .models import Follow
+from .models import Subscribe
 
 User = get_user_model()
 
@@ -13,7 +13,6 @@ class UserAdmin(admin.ModelAdmin):
         'username',
         'first_name',
         'last_name',
-        'password',
         'email',
     )
     search_fields = (
@@ -23,7 +22,7 @@ class UserAdmin(admin.ModelAdmin):
     empty_value_display = 'пусто'
 
 
-@admin.register(Follow)
+@admin.register(Subscribe)
 class FollowAdmin(admin.ModelAdmin):
     list_display = (
         'user',

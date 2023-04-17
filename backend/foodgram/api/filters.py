@@ -7,4 +7,4 @@ class IngredientFilter(SearchFilter):
 
     class Meta:
         model = Ingredient
-        fields = ('name', 'measurment_unit')
+        fields = ('name', 'measurement_unit')

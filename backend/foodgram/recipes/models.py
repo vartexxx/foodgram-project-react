@@ -162,7 +162,6 @@ class RecipesIngredientList(RecipeDefaultModel):
     )
 
     class Meta:
-        default_related_name = 'recipes_amount'
         ordering = ('-id',)
         verbose_name = 'Ингредиенты'
         verbose_name_plural = 'Количество ингредиентов'

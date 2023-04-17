@@ -126,7 +126,7 @@ REST_FRAMEWORK = {
 }
 
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = 'RU-ru'
 
 TIME_ZONE = 'UTC'
 

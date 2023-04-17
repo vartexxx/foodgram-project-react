@@ -45,23 +45,23 @@ class User(AbstractUser):
         verbose_name = 'Пользователя'
         verbose_name_plural = 'Пользователи'
 
-    def get_full_name(self) -> str:
-        return self.get_full_name()
+    def __str__(self) -> str:
+        return self.username
 
 
-class Follow(models.Model):
+class Subscribe(models.Model):
     """Класс модели подписок"""
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='follower',
+        related_name='subscriber',
         verbose_name='Подписчик',
         help_text='Выберите подписчика',
     )
     author = models.ForeignKey(
         User,
-        related_name='following',
+        related_name='subscribing',
         on_delete=models.CASCADE,
         verbose_name='Автор контента',
         help_text='Выберите автора контента',
@@ -70,8 +70,9 @@ class Follow(models.Model):
     class Meta:
         verbose_name = 'Подписчика'
         verbose_name_plural = 'Подписки'
+        ordering = ['-id']
         constraints = [models.UniqueConstraint(
-            fields=['user', 'author'], name='unique_following'
+            fields=['user', 'author'], name='unique_subscription'
         )]
 
     def __str__(self) -> str:
