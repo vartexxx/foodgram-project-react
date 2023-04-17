@@ -30,7 +30,7 @@ class User(AbstractUser):
     )
     password = models.CharField(
         verbose_name='Пароль',
-        help_text='введите пароль',
+        help_text='Введите пароль',
         max_length=150,
     )
     email = models.EmailField(
