@@ -29,7 +29,7 @@ class UsersViewSet(UserViewSet):
     @action(
         methods=['GET'],
         detail=False,
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated, )
     )
     def subscriptions(self, request):
         user = request.user
@@ -43,7 +43,7 @@ class UsersViewSet(UserViewSet):
     @action(
         methods=['POST', 'DELETE'],
         detail=True,
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated, )
     )
     def subscribe(self, request, id):
         author = get_object_or_404(User, id=id)
@@ -96,7 +96,7 @@ class UsersViewSet(UserViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
 
 
 class IngredientsViewSet(mixins.ListModelMixin,
@@ -104,7 +104,7 @@ class IngredientsViewSet(mixins.ListModelMixin,
                          viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny, )
     filterset_class = IngredientFilter
     search_fields = (r'^name', )
 
@@ -136,7 +136,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated, )
     )
     def favorite(self, request, pk=None):
         return self.add_or_delete(
@@ -156,7 +156,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         methods=['GET'],
         detail=False,
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated, )
     )
     def download_shopping_cart(self, request):
         shopping_cart = ShoppingCart.objects.filter(
@@ -175,7 +175,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             amount = item['amount']
             list_text += (
                 f'{ingredient.name}, {amount}'
-                f'{ingredient.measurement_unit}'
             )
         response = HttpResponse(list_text, content_type="text/plain")
         response['Content-Disposition'] = (
