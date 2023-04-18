@@ -21,9 +21,6 @@ from .serializers import (CustomUserSerializer, IngredientSerializer,
 
 
 class UsersViewSet(UserViewSet):
-    """
-    Вьюсет модели пользователей.
-    """
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = PagePaginationLimit
@@ -49,7 +46,6 @@ class UsersViewSet(UserViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id):
-        """Подписка на автора."""
         author = get_object_or_404(User, id=id)
         user = get_object_or_404(User, username=request.user.username)
         if request.method == 'POST':
@@ -91,7 +87,6 @@ class UsersViewSet(UserViewSet):
         permission_classes=(IsAuthenticated, )
     )
     def me(self, request):
-        """Функция профиля пользователя, с доступом только авторизованным"""
         return Response(
             self.get_serializer(request.user).data,
             status=status.HTTP_200_OK
@@ -99,7 +94,6 @@ class UsersViewSet(UserViewSet):
 
 
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет тегов."""
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
     permission_classes = (AllowAny,)
@@ -108,7 +102,6 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientsViewSet(mixins.ListModelMixin,
                          mixins.RetrieveModelMixin,
                          viewsets.GenericViewSet):
-    """Вьюсет ингредиентов."""
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
@@ -117,20 +110,17 @@ class IngredientsViewSet(mixins.ListModelMixin,
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    """Вьюсет рецептов."""
     queryset = Recipes.objects.all()
     permission_classes = (IsAuthenticatedOrReadOnly, )
     filter_backends = (IngredientFilter, )
     pagination_class = PagePaginationLimit
 
     def get_serializer_class(self):
-        """Функция выбора сериализатора рецепта."""
         if self.request.method == 'GET':
             return RecipesSerializer
         return RecipeCreateSerializer
 
     def add_or_delete(self, field):
-        """Функция добавления/удаления для поля field."""
         recipe = self.get_object()
         if self.request.method == 'DELETE':
             field.get(recipe_id=recipe.id).delete()
@@ -149,7 +139,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
-        """Функция избранного."""
         return self.add_or_delete(
             request.user.favorite
         )
@@ -160,7 +149,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
-        """Функция корзины."""
         return self.add_or_delete(
             request.user.shopping_cart
         )
@@ -171,7 +159,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        """Функция загрузки документа из корзины."""
         shopping_cart = ShoppingCart.objects.filter(
             user=self.request.user
         )
