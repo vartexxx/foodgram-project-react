@@ -10,6 +10,12 @@ urls = [
     [f'/api/recipes/{ID}/', 'recipes-detail', [ID]],
     ['/api/ingredients/', 'ingredients-list', []],
     [f'/api/ingredients/{ID}/', 'ingredients-detail', [ID]],
+    ['/api/users/', 'users-list', []],
+    ['/api/users/me/', 'users-me', []],
+    ['/api/users/subscriptions/', 'users-subscriptions', []],
+    [f'/api/users/{ID}/', 'users-detail', [ID]],
+    ['/api/auth/token/login/', 'login', []],
+    ['/api/auth/token/logout/', 'logout', []],
 ]
 
 

@@ -1,7 +1,10 @@
 from django.db import IntegrityError
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from recipes.models import Ingredient, Recipes, Tags
+from recipes.models import (Ingredient, Recipes, RecipesIngredientList,
+                            ShoppingCart, Tags)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import (AllowAny, IsAuthenticated,
@@ -43,7 +46,7 @@ class UsersViewSet(UserViewSet):
     @action(
         methods=['POST', 'DELETE'],
         detail=True,
-        permission_classes=[IsAuthenticated]
+        permission_classes=(IsAuthenticated,)
     )
     def subscribe(self, request, id):
         """Подписка на автора."""
@@ -80,6 +83,18 @@ class UsersViewSet(UserViewSet):
         return Response(
             {'errors': 'Нет подписки'},
             status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    @action(
+        methods=['GET'],
+        detail=False,
+        permission_classes=(IsAuthenticated, )
+    )
+    def me(self, request):
+        """Функция профиля пользователя, с доступом только авторизованным"""
+        return Response(
+            self.get_serializer(request.user).data,
+            status=status.HTTP_200_OK
         )
 
 
@@ -131,7 +146,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
         """Функция избранного."""
@@ -142,7 +157,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk=None):
         """Функция корзины."""
@@ -153,8 +168,30 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         methods=['GET'],
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
         """Функция загрузки документа из корзины."""
-        pass
+        shopping_cart = ShoppingCart.objects.filter(
+            user=self.request.user
+        )
+        cart_list = RecipesIngredientList.objects.filter(
+            recipe__in=[item.recipe.id for item in shopping_cart]
+        ).values(
+            'ingredient'
+        ).annotate(
+            amount=Sum('amount')
+        )
+        list_text = []
+        for item in cart_list:
+            ingredient = Ingredient.objects.get(pk=item['ingredient'])
+            amount = item['amount']
+            list_text += (
+                f'{ingredient.name}, {amount}'
+                f'{ingredient.measurement_unit}'
+            )
+        response = HttpResponse(list_text, content_type="text/plain")
+        response['Content-Disposition'] = (
+            'attachment; filename=shopping_list.txt'
+        )
+        return response
