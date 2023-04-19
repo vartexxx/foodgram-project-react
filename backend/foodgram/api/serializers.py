@@ -1,8 +1,10 @@
+from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (CharField, IntegerField,
                                         ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
@@ -204,17 +206,48 @@ class RecipeCreateSerializer(ModelSerializer):
                 amount=amount
             )
 
+    @staticmethod
+    def validation(data):
+        cooking_time = data['cooking_time']
+        ingredients = data['ingredients']
+        tags = data['tags']
+        if not tags:
+            raise ValidationError(
+                'Должен быть хотя бы один тег.'
+            )
+        if not ingredients:
+            raise ValidationError(
+                'Должен быть хотя бы один ингредиент.'
+            )
+        if int(cooking_time) <= 0:
+            raise ValidationError(
+                'Время приготовления не может быть меньше 0.'
+            )
+        ingredients_list = [ingredient['id'] for ingredient in ingredients]
+        for value in ingredients_list:
+            if ingredients_list.count(value) > 1:
+                raise ValidationError(
+                    'Ингредиенты не должны повторяться.'
+                )
+        tags_list = [tag for tag in tags]
+        for value in tags_list:
+            if tags_list.count(value) > 1:
+                raise ValidationError(
+                    'Теги не должны повторяться.'
+                )
+
+    @atomic
     def create(self, validated_data):
         tags = validated_data.pop('tags')
         recipe = Recipes.objects.create(
-            image=validated_data.pop('image'),
             author=self.context.get('request').user,
             **validated_data
         )
-        self.create_ingredients(validated_data.pop('ingredients'), recipe)
         recipe.tags.set(tags)
+        self.create_ingredients(validated_data.pop('ingredients'), recipe)
         return recipe
 
+    @atomic
     def update(self, obj, validated_data):
         tags = validated_data.pop('tags')
         RecipesIngredientList.objects.filter(

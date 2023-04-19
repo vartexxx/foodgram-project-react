@@ -7,8 +7,7 @@ from recipes.models import (Ingredient, Recipes, RecipesIngredientList,
                             ShoppingCart, Tags)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import (AllowAny, IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from users.models import Subscribe, User
@@ -97,6 +96,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
     permission_classes = (AllowAny, )
+    pagination_class = None
 
 
 class IngredientsViewSet(mixins.ListModelMixin,
@@ -107,11 +107,12 @@ class IngredientsViewSet(mixins.ListModelMixin,
     permission_classes = (AllowAny, )
     filterset_class = IngredientFilter
     search_fields = (r'^name', )
+    pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticated, )
     filter_backends = (IngredientFilter, )
     pagination_class = PagePaginationLimit
 
@@ -146,7 +147,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['POST', 'DELETE'],
-        permission_classes=(IsAuthenticated,)
+        permission_classes=(IsAuthenticated, )
     )
     def shopping_cart(self, request, pk=None):
         return self.add_or_delete(
@@ -174,7 +175,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             ingredient = Ingredient.objects.get(pk=item['ingredient'])
             amount = item['amount']
             list_text += (
-                f'{ingredient.name}, {amount}'
+                f'{ingredient.name}, {amount}, {ingredient.measurement_unit}'
             )
         response = HttpResponse(list_text, content_type="text/plain")
         response['Content-Disposition'] = (
