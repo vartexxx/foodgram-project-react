@@ -22,4 +22,5 @@ jobs:
         python -m flake8 backend
     - name: Test DRF app
       run: |
-        python manage.py test backend/foodgram
+        cd backend/foodgram/
+        python manage.py test
