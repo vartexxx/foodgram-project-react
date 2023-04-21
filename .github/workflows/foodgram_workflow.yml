@@ -41,13 +41,13 @@ jobs:
         with:
           context: ./backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latestv1
       - name: Push to Docker Hub frontend
         uses: docker/build-push-action@v4.0.0
         with:
           context: frontend/
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/frontend_foodgram:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/frontend_foodgram:latestv1
 
 
   deploy:
@@ -73,8 +73,8 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend_foodgram:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latestv1
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend_foodgram:latestv1
             sudo docker-compose up -d --build
 
   telegram_message:
