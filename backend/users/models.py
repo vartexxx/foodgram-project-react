@@ -1,38 +1,16 @@
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
 from django.db import models
 
 
 class User(AbstractUser):
     """Класс кастомного пользователя"""
 
-    username = models.CharField(
-        verbose_name='Логин',
-        help_text='Введите логин',
-        max_length=150,
-        unique=True,
-        validators=[RegexValidator(
-            regex=r'^[\w.@+-]+$',
-            message='Логин содержит недопустимые символы',
-        )]
-    )
-    first_name = models.CharField(
-        verbose_name='Имя',
-        help_text='Введите имя',
-        max_length=150,
-        blank=True,
-    )
-    last_name = models.CharField(
-        verbose_name='Фамилия',
-        help_text='Введите фамилию',
-        max_length=150,
-        blank=True
-    )
-    password = models.CharField(
-        verbose_name='Пароль',
-        help_text='Введите пароль',
-        max_length=150,
-    )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name',
+    ]
     email = models.EmailField(
         verbose_name='Емайл',
         help_text='Введите электронную почту',
