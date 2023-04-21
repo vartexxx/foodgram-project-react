@@ -74,7 +74,6 @@ class RecipesForFollowerSerializer(ModelSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
-    """Сериализатор для кастомной модели пользователя"""
     is_subscribed = SerializerMethodField()
 
     class Meta:

@@ -8,10 +8,11 @@ from psycopg2 import Error
 
 load_dotenv(
     os.path.join(
-        Path(Path(__file__).resolve().parent.parent) / 'infra',
+        Path(Path(__file__).resolve().parent.parent.parent),
         '.env'
     )
 )
+print(Path(Path(__file__).resolve().parent.parent))
 DB_NAME = (os.getenv('DB_NAME'))
 POSTGRES_USER = (os.getenv('POSTGRES_USER'))
 POSTGRES_PASSWORD = (os.getenv('POSTGRES_PASSWORD'))
