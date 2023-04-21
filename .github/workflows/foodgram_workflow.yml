@@ -47,7 +47,7 @@ jobs:
         with:
           context: ./frontend/
           push: true
-          tags: vartexx/frontend:latest
+          tags: vartexxx/frontend:latest
 
 
   deploy:
