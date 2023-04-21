@@ -77,6 +77,10 @@ jobs:
             sudo docker-image rm backend
             sudo docker-compose up -d --build
 
+            sudo docker-compose exec -T backend python manage.py makemigrations
+            sudo docker-compose exec -T backend python manage.py migrate
+            sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+
   telegram_message:
     name: Send telegram message
     runs-on: ubuntu-latest
