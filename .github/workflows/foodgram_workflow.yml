@@ -62,9 +62,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            sudo docker-compose stop
-            sudo docker-compose down
-            sudo docker-image rm foodgram_backend
             rm .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env 
@@ -73,8 +70,11 @@ jobs:
             echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
             echo DB_HOST=${{ secrets.DB_HOST }} >> .env
             echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+
             sudo docker pull vartexxx/backend:latest
             sudo docker pull vartexxx/frontend:latest
+            sudo docker-compose stop
+            sudo docker-image rm backend
             sudo docker-compose up -d --build
 
   telegram_message:
