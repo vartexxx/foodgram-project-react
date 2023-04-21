@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_filters',
     'djoser',
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
@@ -81,9 +82,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'foodgram.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+AUTH_USER_MODEL = 'users.User'
 
 DATABASES = {
     'default': {
@@ -131,6 +130,22 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
+DJOSER = {
+    "LOGIN_FIELD": 'email',
+    "SEND_ACTIVATION_EMAIL": False,
+    'HIDE_USERS': False,
+    "SERIALIZERS": {
+        "user_create": "api.serializers.CustomCreateUserSerializer",
+        "current_user": "api.serializers.CustomUserSerializer",
+        "user": "api.serializers.CustomUserSerializer",
+    },
+    "PERMISSIONS": {
+        "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
+        "user_list": ['rest_framework.permissions.AllowAny'],
+    },
+    "HIDE_USERS": False,
+}
+
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
@@ -151,22 +166,3 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-AUTH_USER_MODEL = 'users.User'
-
-
-DJOSER = {
-    "LOGIN_FIELD": 'email',
-    "SEND_ACTIVATION_EMAIL": False,
-    'HIDE_USERS': False,
-    "SERIALIZERS": {
-        "user_create": "api.serializers.CustomCreateUserSerializer",
-        "current_user": "api.serializers.CustomUserSerializer",
-        "user": "api.serializers.CustomUserSerializer",
-    },
-    "PERMISSIONS": {
-        "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        "user_list": ['rest_framework.permissions.AllowAny'],
-    },
-    "HIDE_USERS": False,
-}
