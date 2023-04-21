@@ -125,6 +125,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_URLS_REGEX = r'^/api/.*$'
 
 LANGUAGE_CODE = 'ru-RU'
 
@@ -148,8 +150,8 @@ AUTH_USER_MODEL = 'users.User'
 
 
 DJOSER = {
-    "LOGIN_FIELD": "email",
-    "SEND_ACTIVATION_EMAIL": False,
+    # "LOGIN_FIELD": "email",
+    # "SEND_ACTIVATION_EMAIL": False,
     "HIDE_USERS": False,
     "SERIALIZERS": {
         "user_create": "api.serializers.CustomCreateUserSerializer",
@@ -159,7 +161,5 @@ DJOSER = {
     "PERMISSIONS": {
         "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
         "user_list": ['rest_framework.permissions.AllowAny'],
-        "token_create": ["rest_framework.permissions.AllowAny"],
-        "token_destroy": ["rest_framework.permissions.IsAuthenticated"],
     },
 }
