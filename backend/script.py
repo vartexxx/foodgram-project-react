@@ -8,7 +8,7 @@ from psycopg2 import Error
 
 load_dotenv(
     os.path.join(
-        Path(Path(__file__).resolve().parent.parent) / 'infra-dev',
+        Path(Path(__file__).resolve().parent.parent) / 'infra',
         '.env'
     )
 )
