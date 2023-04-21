@@ -62,7 +62,8 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
-            rm .env
+            sudo docker-compose stop
+            rm -rf .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env 
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env 
@@ -73,14 +74,11 @@ jobs:
 
             sudo docker pull vartexxx/backend:latest
             sudo docker pull vartexxx/frontend:latest
-            sudo docker-compose stop
-            sudo docker-image rm backend
-            sudo docker-compose up -d --build
+            sudo docker-compose up -d
 
             sudo docker-compose exec -T backend python manage.py makemigrations
             sudo docker-compose exec -T backend python manage.py migrate
             sudo docker-compose exec -T backend python manage.py collectstatic --no-input
-            sudo docker-compose exec -T backend python script.py
 
   telegram_message:
     name: Send telegram message
