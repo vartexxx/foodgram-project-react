@@ -20,3 +20,6 @@ jobs:
     - name: Test with flake8 and django tests
       run: |
         python -m flake8 backend
+    - name: Test DRF app
+      run: |
+        python manage.py test backend/foodgram
