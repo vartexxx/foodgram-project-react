@@ -5,8 +5,7 @@ from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import (CharField, IntegerField,
-                                        ModelSerializer,
+from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
                                         SerializerMethodField)
 from users.models import Subscribe, User
@@ -167,13 +166,12 @@ class RecipesSerializer(ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             user=request.user,
-            recipe_id=obj.id
+            recipe__id=obj.id
         ).exists()
 
 
 class RecipeCreateSerializer(ModelSerializer):
-    author = CustomUserSerializer()
-    name = CharField()
+    author = CustomUserSerializer(read_only=True)
     cooking_time = IntegerField()
     image = Base64ImageField()
     ingredients = IngredientCreateSerializer(many=True)
@@ -238,24 +236,43 @@ class RecipeCreateSerializer(ModelSerializer):
 
     @atomic
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
         recipe = Recipes.objects.create(
             author=self.context.get('request').user,
             **validated_data
         )
-        recipe.tags.set(tags)
-        self.create_ingredients(validated_data.pop('ingredients'), recipe)
+        bulk_data = [
+            RecipesIngredientList(
+                recipe=recipe,
+                ingredient=ingredient_data['ingredient'],
+                amount=ingredient_data['amount'])
+            for ingredient_data in ingredients_data
+        ]
+        recipe.tags.set(tags_data)
+        RecipesIngredientList.objects.bulk_create(bulk_data)
         return recipe
 
     @atomic
-    def update(self, obj, validated_data):
-        tags = validated_data.pop('tags')
-        RecipesIngredientList.objects.filter(
-            recipe=obj
-        ).delete()
-        self.create_ingredients(validated_data.pop('ingredients'), obj)
-        obj.tags.set(tags)
-        return super().update(obj, validated_data)
+    def update(self, instance, validated_data):
+        tags = validated_data.pop('tags', None)
+        if tags is not None:
+            instance.tags.set(tags)
+        ingredients = validated_data.pop('ingredients', None)
+        if ingredients is not None:
+            instance.ingredients.clear()
+        amount_set = RecipesIngredientList.objects.filter(
+            recipe__id=instance.id)
+        amount_set.delete()
+        bulk_data = (
+            RecipesIngredientList(
+                recipe=instance,
+                ingredient=ingredient_data['ingredient'],
+                amount=ingredient_data['amount'])
+            for ingredient_data in ingredients
+        )
+        RecipesIngredientList.objects.bulk_create(bulk_data)
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         return RecipesSerializer(
@@ -280,12 +297,10 @@ class FavoriteSerializer(ModelSerializer):
         )
 
     def to_representation(self, obj):
+        request = self.context.get('request')
+        context = {'request': request}
         return RecipesForFollowerSerializer(
-            obj.recipe,
-            context={
-                'request': self.context.get('request')
-            }
-        ).data
+            obj.recipe, context=context).data
 
 
 class SubscribeSerializer(CustomUserSerializer):
