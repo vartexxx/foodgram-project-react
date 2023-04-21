@@ -5,13 +5,13 @@ services:
   db:
     image: postgres:15.2-alpine
     env_file:
-      - .env
+      - ./.env
     volumes:
       - /var/lib/postgresql/data/
 
 
   backend:
-    image: vartexxx/foodgram_backend:latest
+    image: vartexxx/backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -23,12 +23,17 @@ services:
 
 
   frontend:
-    image: vartexxx/frontend_foodgram:latest
+    depends_on:
+    - backend
+    image: vartexxx/frontend:latest
     volumes:
-      - frontend_value:/app/build/
+      - frontend_value:/app/result_build/
 
   nginx:
+    depends_on:
+      - frontend
     image: nginx:1.21.3-alpine
+    restart: always
     ports:
       - "80:80"
     volumes:
@@ -37,9 +42,6 @@ services:
       - frontend_value:/usr/share/nginx/html/
       - static_value:/var/html/static/
       - media_value:/var/html/media/
-    depends_on:
-      - backend
-      - frontend
 
 volumes:
   static_value:
