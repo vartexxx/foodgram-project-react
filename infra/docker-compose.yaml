@@ -23,7 +23,7 @@ services:
 
 
   frontend:
-    image: vartexxx/foodgram_frontend:latest
+    image: vartexxx/frontend_foodgram:latest
     volumes:
       - frontend_value:/app/build/
 
