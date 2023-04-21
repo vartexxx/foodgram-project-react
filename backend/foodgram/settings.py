@@ -154,9 +154,6 @@ AUTH_USER_MODEL = 'users.User'
 
 
 DJOSER = {
-    "LOGIN_FIELD": "email",
-    "SEND_ACTIVATION_EMAIL": False,
-    "HIDE_USERS": False,
     "SERIALIZERS": {
         "user_create": "api.serializers.CustomCreateUserSerializer",
         "current_user": "api.serializers.CustomUserSerializer",
@@ -166,4 +163,5 @@ DJOSER = {
         "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
         "user_list": ['rest_framework.permissions.AllowAny'],
     },
+    "HIDE_USERS": False,
 }
