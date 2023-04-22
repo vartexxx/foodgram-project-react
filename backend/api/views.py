@@ -7,13 +7,14 @@ from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.serializers import ValidationError
 from users.models import Subscribe, User
 
 from .filters import IngredientFilter, RecipesFilter
 from .pagination import PagePaginationLimit
+from .permissions import IsAdminOrReadOnly, IsAuthorOrReadOnly
 from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipeCreateSerializer, RecipesForFollowerSerializer,
                           RecipesSerializer, SubscribeSerializer,
@@ -99,7 +100,7 @@ class UsersViewSet(UserViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAdminOrReadOnly, )
     pagination_class = None
 
 
@@ -108,7 +109,7 @@ class IngredientsViewSet(mixins.ListModelMixin,
                          viewsets.GenericViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAdminOrReadOnly, )
     filterset_class = IngredientFilter
     search_fields = (r'^name', )
     pagination_class = None
@@ -116,10 +117,13 @@ class IngredientsViewSet(mixins.ListModelMixin,
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly, )
     filter_backends = [DjangoFilterBackend]
     filterset_class = RecipesFilter
     pagination_class = PagePaginationLimit
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
