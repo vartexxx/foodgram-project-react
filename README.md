@@ -45,6 +45,9 @@ sudo apt install docker-compose
 - Скопируйте файлы docker-compose.yml и nginx.conf из директории ../infra/ на удаленный сервер, в домашнюю дерикторию:
 ```sh
 scp docker-compose.yml <username>@<host>:
+```
+
+```sh
 scp nginx.conf <username>@<host>:
 ```
 

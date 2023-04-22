@@ -313,7 +313,7 @@ class SubscribeSerializer(CustomUserSerializer):
         return serializer.data
 
     def get_recipes_count(self, obj):
-        return Recipes.objects.filter(author=obj.author).count()
+        return obj.recipes.count()
 
     def get_is_subscribed(self, obj):
         return Subscribe.objects.filter(
