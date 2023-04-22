@@ -1,5 +1,5 @@
 ### Проект Foodgram
-![example workflow](https://github.com/vartexxx/foodgram-project-react/actions/workflows/foodgram_workflowes.yml/badge.svg)
+![example workflow](https://github.com/vartexxx/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 **Foodgram** - продуктовый помощник.
 
 Пользователи могут публиковать рецептыб подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать в формате .txt список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
