@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 
 services:
 
@@ -11,7 +11,7 @@ services:
 
 
   backend:
-    image: vartexxx/backend:latest
+    image: vartexxx/backend-test:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -26,15 +26,14 @@ services:
   frontend:
     depends_on:
     - backend
-    image: vartexxx/frontend:latest
+    image: vartexxx/frontend-test:latest
     volumes:
       - ../frontend/:/app/result_build/
-
+  
   nginx:
     depends_on:
       - frontend
     image: nginx:1.19.3
-    restart: always
     ports:
       - "80:80"
     volumes:

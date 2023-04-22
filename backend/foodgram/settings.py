@@ -134,10 +134,16 @@ DJOSER = {
     },
 }
 
+CSRF_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [
+    '*',
+    'https://*localhost',
+]
+
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
-LANGUAGE_CODE = 'ru-RU'
+LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'Europe/Moscow'
 
