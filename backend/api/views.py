@@ -45,45 +45,26 @@ class UsersViewSet(UserViewSet):
         detail=True,
         permission_classes=(IsAuthenticated, )
     )
-    def subscribe(self, request, id=None):
-        user = self.request.user
-        author = get_object_or_404(User, pk=id)
-
-        if self.request.method == 'POST':
-            if user == author:
-                raise ValidationError(
-                    'Подписка на самого себя запрещена.'
-                )
-            if Subscribe.objects.filter(
-                user=user,
-                author=author
-            ).exists():
-                raise ValidationError('Подписка уже оформлена.')
-
+    def subscribe(self, request, **kwargs):
+        user = request.user
+        author = get_object_or_404(User, id=self.kwargs.get('id'))
+        if request.method == 'POST':
+            serializer = SubscribeSerializer(
+                author,
+                data=request.data,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
             Subscribe.objects.create(user=user, author=author)
-            serializer = self.get_serializer(author)
-
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        if self.request.method == 'DELETE':
-            if not Subscribe.objects.filter(
-                user=user,
-                author=author
-            ).exists():
-                raise ValidationError(
-                    'Подписка не была оформлена, либо уже удалена.'
-                )
-
+        if request.method == 'DELETE':
             subscription = get_object_or_404(
                 Subscribe,
                 user=user,
                 author=author
             )
             subscription.delete()
-
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(
         methods=['GET'],

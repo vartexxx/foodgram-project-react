@@ -4,6 +4,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
+from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import (IntegerField, ModelSerializer,
                                         PrimaryKeyRelatedField, ReadOnlyField,
@@ -47,6 +48,12 @@ class IngredientsInRecipeSerializer(ModelSerializer):
             'measurement_unit',
             'amount',
         )
+
+    def get_measurement_unit(self, ingredient_in_recipe):
+        return ingredient_in_recipe.ingredient.measurement_unit
+
+    def get_name(self, ingredient_in_recipe):
+        return ingredient_in_recipe.ingredient.name
 
 
 class IngredientCreateSerializer(ModelSerializer):
@@ -148,7 +155,7 @@ class RecipesSerializer(ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             user=request.user,
-            recipe=obj.id
+            recipe_id=obj.id
         ).exists()
 
 
@@ -276,6 +283,21 @@ class SubscribeSerializer(CustomUserSerializer):
             'recipes_count',
         )
 
+    def validate(self, data):
+        author = self.instance
+        user = self.context.get('request').user
+        if Subscribe.objects.filter(author=author, user=user).exists():
+            raise ValidationError(
+                detail='Подписка уже оформлена.',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        if user == author:
+            raise ValidationError(
+                detail='Подписка на самого себя запрещена.',
+                code=status.HTTP_400_BAD_REQUEST
+            )
+        return data
+
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.GET.get('recipes_limit')
@@ -287,9 +309,3 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes_count(self, obj):
         return obj.recipes.count()
-
-    def get_is_subscribed(self, obj):
-        return Subscribe.objects.filter(
-            user=obj.user,
-            author=obj.author
-        ).exists()
