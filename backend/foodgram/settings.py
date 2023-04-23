@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
+    # 'corsheaders',
     'django_filters',
     'djoser',
     'recipes.apps.RecipesConfig',
@@ -31,7 +31,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    # 'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -104,6 +104,8 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    # "LOGIN_FIELD": 'email',
+    # "SEND_ACTIVATION_EMAIL": False,
     'HIDE_USERS': False,
     "SERIALIZERS": {
         "user_create": "api.serializers.CustomCreateUserSerializer",
