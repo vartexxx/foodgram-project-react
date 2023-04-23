@@ -81,7 +81,7 @@ class RecipesForFollowerSerializer(ModelSerializer):
 
 
 class CustomUserSerializer(UserSerializer):
-    is_subscribed = SerializerMethodField()
+    is_subscribed = SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -93,13 +93,12 @@ class CustomUserSerializer(UserSerializer):
             'email',
             'is_subscribed',
         )
-        read_only_fields = 'id', 'is_subscribed'
 
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
+    def get_is_subscribed(self, author):
+        user = self.context.get('request').user
+        if user.is_anonymous:
             return False
-        return Subscribe.objects.filter(user=request.user, author=obj).exists()
+        return Subscribe.objects.filter(user=user, author=author).exists()
 
 
 class CustomCreateUserSerializer(UserCreateSerializer):
@@ -149,14 +148,11 @@ class RecipesSerializer(ModelSerializer):
             return True
         return False
 
-    def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
+    def get_is_in_shopping_cart(self, recipe):
+        user = self.context.get('request').user
+        if user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(
-            user=request.user,
-            recipe_id=obj.id
-        ).exists()
+        return user.shopping_cart.filter(recipe=recipe).exists()
 
 
 class RecipeCreateSerializer(ModelSerializer):
@@ -269,19 +265,14 @@ class RecipeCreateSerializer(ModelSerializer):
 
 
 class SubscribeSerializer(CustomUserSerializer):
-    recipes = SerializerMethodField(method_name='get_recipes')
-    recipes_count = SerializerMethodField(method_name='get_recipes_count')
+    recipes = SerializerMethodField()
+    recipes_count = SerializerMethodField()
 
-    class Meta:
-        model = User
-        fields = (
-            'id',
-            'first_name',
-            'last_name',
-            'is_subscribed',
-            'recipes',
-            'recipes_count',
+    class Meta(CustomUserSerializer.Meta):
+        fields = CustomUserSerializer.Meta.fields + (
+            'recipes_count', 'recipes'
         )
+        read_only_fields = ('email', 'username')
 
     def validate(self, data):
         author = self.instance

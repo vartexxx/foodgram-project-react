@@ -198,7 +198,7 @@ class ShoppingCart(RecipeDefaultModel, UserDefaultModel):
     """Класс модели корзины"""
 
     class Meta:
-        default_related_name = 'shoppingcart'
+        default_related_name = 'shopping_cart'
         verbose_name = 'Корзину'
         verbose_name_plural = 'Корзина'
         constraints = [models.UniqueConstraint(
