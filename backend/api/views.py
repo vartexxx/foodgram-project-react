@@ -5,7 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
-from rest_framework import mixins, status, viewsets
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -104,9 +104,7 @@ class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class IngredientsViewSet(mixins.ListModelMixin,
-                         mixins.RetrieveModelMixin,
-                         viewsets.GenericViewSet):
+class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
@@ -166,8 +164,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
             )
         return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @action(detail=True, methods=['POST', 'DELETE'],
-            permission_classes=(IsAuthenticated, ))
+    @action(
+        detail=True,
+        methods=['POST', 'DELETE'],
+        permission_classes=(IsAuthenticated, )
+    )
     def shopping_cart(self, request, pk):
         recipe = get_object_or_404(Recipes, pk=pk)
         if self.request.method == 'POST':
