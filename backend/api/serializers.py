@@ -86,12 +86,13 @@ class CustomUserSerializer(UserSerializer):
             'email',
             'is_subscribed',
         )
+        read_only_fields = 'id', 'is_subscribed'
 
     def get_is_subscribed(self, obj):
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            return Subscribe.objects.filter(user=user, author=obj).exists()
-        return False
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Subscribe.objects.filter(user=request.user, author=obj).exists()
 
 
 class CustomCreateUserSerializer(UserCreateSerializer):
@@ -147,7 +148,7 @@ class RecipesSerializer(ModelSerializer):
             return False
         return ShoppingCart.objects.filter(
             user=request.user,
-            recipe__id=obj.id
+            recipe=obj.id
         ).exists()
 
 
@@ -258,28 +259,6 @@ class RecipeCreateSerializer(ModelSerializer):
             instance,
             context={'request': self.context.get('request')}
         ).data
-
-
-class FavoriteSerializer(ModelSerializer):
-    user = PrimaryKeyRelatedField(
-        queryset=User.objects.all()
-    )
-    recipes = PrimaryKeyRelatedField(
-        queryset=Recipes.objects.all()
-    )
-
-    class Meta:
-        model = Favorite
-        fields = (
-            'user',
-            'recipes',
-        )
-
-    def to_representation(self, obj):
-        request = self.context.get('request')
-        context = {'request': request}
-        return RecipesForFollowerSerializer(
-            obj.recipe, context=context).data
 
 
 class SubscribeSerializer(CustomUserSerializer):
