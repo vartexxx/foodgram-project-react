@@ -1,3 +1,4 @@
+from django.db.models import F
 from django.db.transaction import atomic
 from django.shortcuts import get_object_or_404
 from djoser.serializers import UserCreateSerializer, UserSerializer
@@ -50,11 +51,7 @@ class IngredientsInRecipeSerializer(ModelSerializer):
 
 
 class IngredientCreateSerializer(ModelSerializer):
-    id = PrimaryKeyRelatedField(
-        source='ingredient',
-        queryset=Ingredient.objects.all()
-    )
-    amount = IntegerField()
+    id = IntegerField()
 
     class Meta:
         model = RecipesIngredientList
@@ -127,12 +124,13 @@ class RecipesSerializer(ModelSerializer):
             'cooking_time',
         )
 
-    @staticmethod
-    def get_ingredients(obj):
-        return IngredientsInRecipeSerializer(
-            RecipesIngredientList.objects.filter(recipe=obj),
-            many=True,
-        ).data
+    def get_ingredients(self, obj):
+        return obj.ingredients.values(
+            'id',
+            'name',
+            'measurement_unit',
+            amount=F('ingredientinrecipe__amount')
+        )
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')

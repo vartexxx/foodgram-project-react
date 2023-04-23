@@ -110,15 +110,15 @@ class IngredientsViewSet(mixins.ListModelMixin,
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (IsAdminOrReadOnly, )
+    filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
-    search_fields = (r'^name', )
     pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipes.objects.all()
     permission_classes = (IsAuthorOrReadOnly | IsAdminOrReadOnly, )
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipesFilter
     pagination_class = PagePaginationLimit
 
