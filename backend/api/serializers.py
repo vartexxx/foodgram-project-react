@@ -292,7 +292,7 @@ class SubscribeSerializer(CustomUserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.GET.get('recipes_limit')
-        recipes = Recipes.objects.filter(author=obj.author)
+        recipes = obj.recipes.all()
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
         serializer = RecipesForFollowerSerializer(recipes, many=True)

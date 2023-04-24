@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -7,10 +8,9 @@ from recipes.models import (Favorite, Ingredient, Recipes,
                             RecipesIngredientList, ShoppingCart, Tags)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import ValidationError
-from users.models import Subscribe, User
+from users.models import Subscribe
 
 from .filters import IngredientFilter, RecipesFilter
 from .pagination import PagePaginationLimit
@@ -20,6 +20,8 @@ from .serializers import (CustomUserSerializer, IngredientSerializer,
                           RecipesSerializer, SubscribeSerializer,
                           TagsSerializer)
 
+User = get_user_model()
+
 
 class UsersViewSet(UserViewSet):
     queryset = User.objects.all()
@@ -27,7 +29,6 @@ class UsersViewSet(UserViewSet):
     pagination_class = PagePaginationLimit
 
     @action(
-        methods=['GET'],
         detail=False,
         permission_classes=(IsAuthenticated, )
     )
@@ -68,7 +69,6 @@ class UsersViewSet(UserViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
-        methods=['GET'],
         detail=False,
         permission_classes=(IsAuthenticated, )
     )
@@ -82,14 +82,14 @@ class UsersViewSet(UserViewSet):
 class TagsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tags.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (AllowAny, )
     pagination_class = None
 
 
 class IngredientsViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly, )
+    permission_classes = (AllowAny, )
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
     pagination_class = None
