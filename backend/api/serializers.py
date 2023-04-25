@@ -105,10 +105,9 @@ class CustomCreateUserSerializer(UserCreateSerializer):
 
     class Meta:
         model = User
-        fields = tuple(User.REQUIRED_FIELDS) + (
-            User.USERNAME_FIELD,
-            'password',
-        )
+        fields = (
+            'email', 'username', 'first_name',
+            'last_name', 'password')
 
 
 class RecipesSerializer(ModelSerializer):
@@ -265,8 +264,8 @@ class RecipeCreateSerializer(ModelSerializer):
 
 
 class SubscribeSerializer(CustomUserSerializer):
-    recipes = SerializerMethodField()
-    recipes_count = SerializerMethodField()
+    recipes = SerializerMethodField(method_name='get_recipes_count')
+    recipes_count = SerializerMethodField(method_name='get_recipes')
 
     class Meta(CustomUserSerializer.Meta):
         fields = CustomUserSerializer.Meta.fields + (
@@ -292,7 +291,7 @@ class SubscribeSerializer(CustomUserSerializer):
     def get_recipes(self, obj):
         request = self.context.get('request')
         recipes_limit = request.GET.get('recipes_limit')
-        recipes = obj.recipes.all()
+        recipes = Recipes.objects.filter(author=obj.author)
         if recipes_limit:
             recipes = recipes[:int(recipes_limit)]
         serializer = RecipesForFollowerSerializer(recipes, many=True)

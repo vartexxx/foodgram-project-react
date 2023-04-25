@@ -4,19 +4,30 @@ from django.db import models
 
 class User(AbstractUser):
     """Класс кастомного пользователя"""
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [
-        'username',
-        'first_name',
-        'last_name',
-    ]
     email = models.EmailField(
-        verbose_name='Емайл',
-        help_text='Введите электронную почту',
         max_length=254,
+        verbose_name='Адрес электронной почты',
         unique=True,
     )
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=150,
+        unique=True,
+    )
+    first_name = models.CharField(
+        verbose_name='Имя',
+        max_length=150,
+        blank=True,
+        null=True,
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=150,
+        blank=True,
+        null=True,
+    )
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
 
     class Meta:
         ordering = ('username',)
