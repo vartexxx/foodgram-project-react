@@ -290,11 +290,11 @@ class SubscribeSerializer(CustomUserSerializer):
 
     def get_recipes(self, obj):
         request = self.context.get('request')
-        recipes_limit = request.GET.get('recipes_limit')
-        recipes = Recipes.objects.filter(author=obj.author)
-        if recipes_limit:
-            recipes = recipes[:int(recipes_limit)]
-        serializer = RecipesForFollowerSerializer(recipes, many=True)
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if limit:
+            recipes = recipes[: int(limit)]
+        serializer = RecipesForFollowerSerializer(recipes, many=True, read_only=True)
         return serializer.data
 
     def get_recipes_count(self, obj):
