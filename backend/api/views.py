@@ -22,7 +22,6 @@ from .serializers import (IngredientSerializer, ReadRecipeSerializer,
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagsSerializer
-    permission_classes = (AllowAny, )
     pagination_class = None
 
 
