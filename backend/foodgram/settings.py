@@ -7,7 +7,7 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-f(vu%fm4(e3!ar!3w@(c1#ypkmnu(80y%dmk-m*vme$)p+bp4('
+SECRET_KEY = os.getenv('SECRET_KEY', default='supersecretkey')
 
 DEBUG = False
 
@@ -89,25 +89,20 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',
-    ],
-
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
 }
 
 DJOSER = {
     'HIDE_USERS': False,
-    "SERIALIZERS": {
-        "user_create": "api.serializers.CustomCreateUserSerializer",
-        "current_user": "api.serializers.CustomUserSerializer",
-        "user": "api.serializers.CustomUserSerializer",
+    'SERIALIZERS': {
+        'user': ('users.serializers.CustomUserSerializer'),
+        'current_user': ('users.serializers.CustomUserSerializer')
     },
-    "PERMISSIONS": {
-        "user": ['djoser.permissions.CurrentUserOrAdminOrReadOnly'],
-        "user_list": ['rest_framework.permissions.AllowAny'],
+    'PERMISSIONS': {
+        'user_list': ('rest_framework.permissions.AllowAny',),
+        'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',),
     },
 }
 

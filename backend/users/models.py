@@ -1,33 +1,38 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.db.models import (CASCADE, CharField, EmailField, ForeignKey,
+                              Model, UniqueConstraint)
+
+User = get_user_model
 
 
 class User(AbstractUser):
     """Класс кастомного пользователя"""
-    email = models.EmailField(
+
+    email = EmailField(
         max_length=254,
         verbose_name='Адрес электронной почты',
+        help_text='Введите адрес электронной почты',
         unique=True,
     )
-    username = models.CharField(
-        verbose_name='Имя пользователя',
-        max_length=150,
-        unique=True,
-    )
-    first_name = models.CharField(
+    first_name = CharField(
         verbose_name='Имя',
+        help_text='Введите свое имя',
         max_length=150,
-        blank=True,
-        null=True,
     )
-    last_name = models.CharField(
+    last_name = CharField(
         verbose_name='Фамилия',
+        help_text='Введите свою фамилию',
         max_length=150,
-        blank=True,
-        null=True,
     )
+
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name',
+    ]
 
     class Meta:
         ordering = ('username',)
@@ -38,20 +43,19 @@ class User(AbstractUser):
         return self.username
 
 
-class Subscribe(models.Model):
+class Subscribe(Model):
     """Класс модели подписок"""
 
-    user = models.ForeignKey(
+    user = ForeignKey(
         User,
-        on_delete=models.CASCADE,
-        related_name='subscriber',
+        on_delete=CASCADE,
+        related_name='subscribers',
         verbose_name='Подписчик',
         help_text='Выберите подписчика',
     )
-    author = models.ForeignKey(
-        User,
+    author = ForeignKey(
+        User, on_delete=CASCADE,
         related_name='subscribing',
-        on_delete=models.CASCADE,
         verbose_name='Автор контента',
         help_text='Выберите автора контента',
     )
@@ -59,7 +63,10 @@ class Subscribe(models.Model):
     class Meta:
         verbose_name = 'Подписчика'
         verbose_name_plural = 'Подписки'
-        ordering = ('-id',)
-        constraints = [models.UniqueConstraint(
-            fields=['user', 'author'], name='unique_subscription'
-        )]
+        ordering = ('-author_id',)
+        constraints = [
+            UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_subscribe',
+            )
+        ]

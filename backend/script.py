@@ -1,3 +1,6 @@
+"""
+Скрипт предназначен для использования с SQLite3
+"""
 import json
 import os
 from pathlib import Path
