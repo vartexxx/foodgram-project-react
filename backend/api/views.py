@@ -48,16 +48,41 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return ReadRecipeSerializer
         return RecipeCreateSerializer
 
-    @action(
-        detail=True,
-        methods=('POST', 'DELETE',),
-        permission_classes=(IsAuthenticated, )
-    )
-    def favorite(self, request, pk=None):
-        recipe = get_object_or_404(Recipe, id=pk)
-        if request.method == 'POST':
-            return self.add_obj(Favorite, recipe, request.user)
-        return self.delete_obj(Favorite, recipe, request.user)
+    @action(detail=True, methods=['POST', 'DELETE'],
+            permission_classes=(IsAuthenticated, ))
+    def favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        if self.request.method == 'POST':
+            if Favorite.objects.filter(
+                user=request.user,
+                recipe=recipe
+            ).exists():
+                return Response(
+                    {'errors': 'Рецепт уже в избранном.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            Favorite.objects.get_or_create(user=request.user, recipe=recipe)
+            data = ShortRecipeSerializer(recipe).data
+            return Response(data, status=status.HTTP_201_CREATED)
+        if self.request.method == 'DELETE':
+            if Favorite.objects.filter(
+                user=request.user,
+                recipe=recipe
+            ).exists():
+                get_object_or_404(
+                    Favorite,
+                    user=request.user,
+                    recipe=recipe
+                ).delete()
+                return Response(
+                    'Рецепт удален из избранного.',
+                    status=status.HTTP_204_NO_CONTENT
+                )
+            return Response(
+                'Данного рецепта нет в избранном.',
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
     @action(detail=True,
             methods=('POST', 'DELETE'),
